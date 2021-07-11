@@ -1,5 +1,6 @@
 from discord.ext import commands
 from datetime import datetime, timezone
+from typing import Optional
 
 class Example(commands.Cog):
     def __init__(self):
@@ -25,11 +26,11 @@ class Example(commands.Cog):
         Uptime is the time since this module was initialized.
         TODO: Implement a display to show times other than seconds.
         """
-        time = self._time_between(self._start_time)
+        time = self._time_between(self._start_time, ctx.message.created_at)
         await ctx.send(f"Uptime: {time} seconds")
     
     @staticmethod
-    def _time_between(time_from: datetime) -> str:
+    def _time_between(time_from: datetime, time_to: Optional[datetime] = None, places: int = 2) -> str:
         """time_between
         Arguments:
         time_from: datetime.datetime
@@ -39,11 +40,13 @@ class Example(commands.Cog):
         since time_from to the current time (given by datetime.now(timezone.utc)),
         in seconds, to two decimal places.
         """
-        time_to = datetime.now(timezone.utc)
+        # Get current time if not provided
+        if time_to is None:
+            time_to = datetime.now(timezone.utc)
         # If the given time doesn't have a timezone, assume UTC
         # This prevents errors with mixing naive and aware datetime items
         if time_from.tzinfo is None:
             time_from = time_from.replace(tzinfo=timezone.utc)
         between = time_to - time_from
-        between_seconds = f"{between.total_seconds():.2f}"
+        between_seconds = f"{between.total_seconds():.{places}f}"
         return between_seconds

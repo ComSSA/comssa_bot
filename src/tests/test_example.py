@@ -11,10 +11,14 @@ class TestExample(unittest.TestCase):
         # dtmock is a mock object that overrides the datetime class used to get the current time
         now = datetime(2000, 1, 1, tzinfo=timezone.utc)
         dtmock.now.return_value = now
-        # Tests the Example._time_between function
-        times = [(0, "0.00"), (5, "5.00"), (4.32, "4.32"), (-42.8473, "-42.85")]
-        for (offset, expected) in times:
-            self.assertEqual(Example._time_between(now - timedelta(seconds=offset)), expected)
+
+        self.assertEqual(Example._time_between(now - timedelta(seconds=5)), "5.00", "Basic test")
+        self.assertEqual(Example._time_between(now - timedelta(seconds=123.45678)), "123.46", "Testing rounding")
+        self.assertEqual(Example._time_between(now - timedelta(seconds=123.45678), now + timedelta(seconds=200)), "323.46", "Testing giving different time_to")
+        self.assertEqual(Example._time_between(now - timedelta(seconds=123.45678), now + timedelta(seconds=200), 0), "323", "Testing rounding to no places")
+        self.assertEqual(Example._time_between(now - timedelta(seconds=123.45678), places=6), "123.456780", "Testing giving more places than numbers")
+
+        
 
 if __name__ == "__main__":
     unittest.main()
