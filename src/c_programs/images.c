@@ -11,7 +11,7 @@
 #ifdef TESTING
 int main() {
     /* Creating variables and assigning them */
-    generateMandelBrot(500);
+    generateMandelBrot(5000);
 
     printf("Attempted to write to out.png, cur err no: %d\n", errno);
     return 0;
@@ -61,7 +61,7 @@ void generateMandelBrot(int size) {
 
     /* Saving */
     output = fopen("out.png", "wb");
-    gdImagePng(im, output);
+    gdImagePngEx(im, output, 9);
 }
 
 int calcEscapeForPixel(double x0, double y0) {
@@ -84,21 +84,34 @@ int calcEscapeForPixel(double x0, double y0) {
     return i;
 }
 
+#define HUE 260.0
+#define SATURATION 0.6
+
 gdImagePtr createImage(int** iterationCount, int size, int* histogram) {
-    int total, r, g, b, x, y, colour;
-    double v;
+    int r, g, b, x, y, total, colour, cur;
+    double v, total_d;
     gdImagePtr im;
 
     total = histogram[MAX_ITERATIONS - 1];
+    total_d = (double)total;
+
     im = gdImageCreateTrueColor(size, size);
 
     for(x = 0; x < size; x++) {
         for(y = 0; y < size; y++) {
             /* Calculating needed colour */
-            v = (double)histogram[iterationCount[x][y]] / total * 100.0;
-            HsvToRgb(240.0, 80.0, v, &r, &g, &b);
-            /* For truecolor images, shouldn't have to allocate colors */
-            colour = gdImageColorExact(im, r, g, b);
+            cur = histogram[iterationCount[x][y]];
+            if(iterationCount[x][y] == MAX_ITERATIONS) {
+                /* Just use solid black */
+                colour = gdImageColorExact(im, 0, 0, 0);
+            }
+            else {
+                v = (double)cur / total_d;
+                HsvToRgb(HUE, SATURATION, v, &r, &g, &b);
+                /* For truecolor images, shouldn't have to allocate colors */
+                colour = gdImageColorExact(im, r, g, b);
+            }
+
             gdImageSetPixel(im, x, y, colour);
         }
     }
