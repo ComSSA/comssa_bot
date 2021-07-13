@@ -23,7 +23,7 @@ char* generateMandelbrot(int size, int* len) {
     int x, y, escapeNum;
     double size_d, x_trans, y_trans;
     gdImagePtr im;
-    FILE* output;
+    char* imPtr;
 
     /* Allocating table */
     iterationCount = malloc(size * sizeof(int*));
@@ -57,7 +57,7 @@ char* generateMandelbrot(int size, int* len) {
     im = createImage(iterationCount, size, histogram);
 
     /* Saving */
-    gdImagePngPtrEx(im, len, COMPRESSION_LEVEL);
+    imPtr = gdImagePngPtrEx(im, len, COMPRESSION_LEVEL);
 
     /* Freeing */
     gdImageDestroy(im);
@@ -66,6 +66,8 @@ char* generateMandelbrot(int size, int* len) {
     }
     free(iterationCount);
     free(histogram);
+
+    return imPtr;
 }
 
 int calcEscapeForPixel(double x0, double y0) {

@@ -1,6 +1,12 @@
+import discord
 from discord.ext import commands
+import asyncio
+import concurrent.futures
+from io import BytesIO
 from datetime import datetime, timezone
+from functools import partial
 from typing import Optional, TYPE_CHECKING
+import cogs.example.mandelbrot as mandelbrot
 
 # Hack to make discord.py-stubs work properly, because for some reason it believes that Cog is generic, while in runtime it is not
 if TYPE_CHECKING:
@@ -34,6 +40,27 @@ class Example(Cog):
         """
         time = self._time_between(self._start_time, ctx.message.created_at)
         await ctx.send(f"Uptime: {time} seconds")
+    
+    @commands.command()
+    async def mandelbrot(self, ctx: commands.Context, resolution: int = 500):
+        if resolution < 1:
+            await ctx.send("Invalid resolution")
+        elif resolution > 1000:
+            await ctx.send("Resolution exceeds limit")
+        else:
+            # Valid resolution
+            # Give a typing notification while this runs
+            with ctx.typing():
+                # Create an executor that will let this task be run in a different kernel thread
+                with concurrent.futures.ProcessPoolExecutor() as pool:
+                    loop = asyncio.get_running_loop()
+                    to_run = partial(mandelbrot.generate_mandelbrot, resolution)
+                    result: bytes = await loop.run_in_executor(
+                        pool, to_run
+                    )
+                    # Once has returned, can upload
+                    file = discord.File(BytesIO(result), "mandelbrot.png")
+                    await ctx.send("Generated Mandelbrot", file=file)
     
     @staticmethod
     def _time_between(time_from: datetime, time_to: Optional[datetime] = None, places: int = 2) -> str:
