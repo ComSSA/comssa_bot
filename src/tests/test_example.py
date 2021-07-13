@@ -3,10 +3,10 @@ import unittest
 from datetime import datetime, timezone, timedelta
 from unittest.mock import patch
 
-from Cogs.example import Example
+from cogs.example.example import Example
 
 class TestExample(unittest.TestCase):
-    @patch('Cogs.example.datetime')
+    @patch('cogs.example.example.datetime')
     def test_time_between(self, dtmock):
         # dtmock is a mock object that overrides the datetime class used to get the current time
         now = datetime(2000, 1, 1, tzinfo=timezone.utc)

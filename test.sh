@@ -1,3 +1,5 @@
 #!/bin/bash
 
-python -m unittest discover -t src/ -s src/tests/
+cd src
+python setup.py build_ext --inplace
+python -m unittest discover -s tests/
