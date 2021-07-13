@@ -1,14 +1,14 @@
 import sys, os, argparse
 import discord
 from discord.ext import commands
-from Cogs import example
+from cogs.example import example
 
 bot = commands.Bot(
     command_prefix=".",
     case_insensitive=True
 )
 
-def main():
+def main() -> None:
     """main
     Main is defined as it's own function so that it will only run if the file is run directly.
     This prevents the script from running if you decide to import the file.
@@ -38,7 +38,7 @@ def main():
     start_bot(token)
 
 # Start up bot with given token
-def start_bot(token):
+def start_bot(token: str) -> None:
     bot.add_cog(example.Example())
 
     try:
@@ -48,7 +48,7 @@ def start_bot(token):
         sys.exit(1)
 
 @bot.event
-async def on_ready():
+async def on_ready() -> None:
     # Runs when the bot successfully starts
     print(f"Logged in as {bot.user}")
 

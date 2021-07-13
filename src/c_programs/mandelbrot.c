@@ -4,22 +4,19 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define TESTING
+#include "mandelbrot.h"
 
-#include "images.h"
-
-#ifdef TESTING
-int main() {
-    /* Creating variables and assigning them */
-    generateMandelBrot(5000);
-
-    printf("Attempted to write to out.png, cur err no: %d\n", errno);
-    return 0;
-}
-#endif
 
 #define MAX_ITERATIONS 100
-void generateMandelBrot(int size) {
+
+#define HUE 260.0
+#define SATURATION 0.6
+
+#define COMPRESSION_LEVEL 9
+
+char* generateMandelbrot(int size, int* len) {
+    /* Generates a mandelbrot image of size sizexsize, creates a PNG file in a buffer, and returns a pointer to it. */
+    /* len is a pointer that will be written to with the length of the file. */
     /* Based largely off of the code at https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set */
     int** iterationCount;
     int* histogram;
@@ -60,8 +57,15 @@ void generateMandelBrot(int size) {
     im = createImage(iterationCount, size, histogram);
 
     /* Saving */
-    output = fopen("out.png", "wb");
-    gdImagePngEx(im, output, 9);
+    gdImagePngPtrEx(im, len, COMPRESSION_LEVEL);
+
+    /* Freeing */
+    gdImageDestroy(im);
+    for(x = 0; x < size; x++) {
+        free(iterationCount[x]);
+    }
+    free(iterationCount);
+    free(histogram);
 }
 
 int calcEscapeForPixel(double x0, double y0) {
@@ -83,9 +87,6 @@ int calcEscapeForPixel(double x0, double y0) {
 
     return i;
 }
-
-#define HUE 260.0
-#define SATURATION 0.6
 
 gdImagePtr createImage(int** iterationCount, int size, int* histogram) {
     int r, g, b, x, y, total, colour, cur;
@@ -162,4 +163,8 @@ void HsvToRgb(double h, double s, double v, int* r, int* g, int* b) {
     *r = (int)((pre_r + m) * 255.0);
     *g = (int)((pre_g + m) * 255.0);
     *b = (int)((pre_b + m) * 255.0);
+}
+
+void freeImage(char* ptr) {
+    gdFree(ptr);
 }
