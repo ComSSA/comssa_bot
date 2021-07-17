@@ -17,6 +17,7 @@
 char* generateMandelbrot(int size, int* len) {
     /* Generates a mandelbrot image of size sizexsize, creates a PNG file in a buffer, and returns a pointer to it. */
     /* len is a pointer that will be written to with the length of the file. */
+    /* Returns NULL if an error occurs */
     /* Based largely off of the code at https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set */
     int** iterationCount;
     int* histogram;
@@ -27,11 +28,29 @@ char* generateMandelbrot(int size, int* len) {
 
     /* Allocating table */
     iterationCount = malloc(size * sizeof(int*));
-    for(x = 0; x < size; x++) {
-        iterationCount[x] = malloc(size * sizeof(int));
+    
+    if(iterationCount == NULL) {
+        return NULL;
     }
+
     /* Also initialising everything to 0 */
     histogram = calloc(MAX_ITERATIONS, sizeof(int));
+    if(histogram == NULL) {
+        free(iterationCount);
+        return NULL;
+    }
+
+    for(x = 0; x < size; x++) {
+        iterationCount[x] = malloc(size * sizeof(int));
+        if(iterationCount[x] == NULL) {
+            for(y = 0; y < x; y++) {
+                free(iterationCount[y]);
+            }
+            free(iterationCount);
+            free(histogram);
+            return NULL;
+        }
+    }
 
     /* Filling table */
     /* size - 1 so that the min value of x/size_d is 0, and max value is 1. */

@@ -2,6 +2,7 @@
 # distutils: include_dirs = c_programs/
 
 import cython
+from errors.errors import MemoryError
 
 cdef extern from "mandelbrot.h":
     char* generateMandelbrot(int size, int* len)
@@ -15,7 +16,7 @@ def generate_mandelbrot(size: cython.int) -> bytes:
     raw_image = generateMandelbrot(size, &length)
 
     if length <= -1 or raw_image is NULL:
-        raise Exception()
+        raise MemoryError("Not enough memory")
     
     # This will make cython copy length bytes, starting at the position pointed to by raw_image, to a python bytes object
     # Cython doesn't support wrapping a section of memory in a bytes container, so this is the best option

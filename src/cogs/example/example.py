@@ -45,22 +45,27 @@ class Example(Cog):
     async def mandelbrot(self, ctx: commands.Context, resolution: int = 500):
         if resolution < 1:
             await ctx.send("Invalid resolution")
-        elif resolution > 1000:
+        elif resolution > 1000: #TODO: Implement config read
             await ctx.send("Resolution exceeds limit")
         else:
             # Valid resolution
             # Give a typing notification while this runs
             with ctx.typing():
+                start_time = datetime.now()
                 # Create an executor that will let this task be run in a different kernel thread
                 with concurrent.futures.ProcessPoolExecutor() as pool:
                     loop = asyncio.get_running_loop()
                     to_run = partial(mandelbrot.generate_mandelbrot, resolution)
-                    result: bytes = await loop.run_in_executor(
-                        pool, to_run
-                    )
-                    # Once has returned, can upload
-                    file = discord.File(BytesIO(result), "mandelbrot.png")
-                    await ctx.send("Generated Mandelbrot", file=file)
+                    try:
+                        result: bytes = await loop.run_in_executor(
+                            pool, to_run
+                        )
+                        # Once has returned, can upload
+                        file = discord.File(BytesIO(result), "mandelbrot.png")
+                        end_time = datetime.now()
+                        await ctx.send(f"Generated Mandelbrot in {self._time_between(start_time, end_time)} seconds", file=file)
+                    except MemoryError:
+                        await ctx.send(f"Error: Not enough memory")
     
     @staticmethod
     def _time_between(time_from: datetime, time_to: Optional[datetime] = None, places: int = 2) -> str:
