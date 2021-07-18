@@ -13,11 +13,12 @@ RUN pip install -r requirements.txt
 
 COPY src/ src
 
-# Run unit tests, if this fails build will fail
-COPY test.sh test.sh
-RUN ./test.sh
-
 WORKDIR src
+# Build Cython files
+RUN python setup.py build_ext --inplace
+
+# Run unit tests, if this fails build will fail
+RUN python -m unittest discover -s tests/
 
 RUN mypy main.py
 
