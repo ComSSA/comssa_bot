@@ -6,7 +6,7 @@ from io import BytesIO
 from datetime import datetime, timezone
 from functools import partial
 from typing import Optional, TYPE_CHECKING
-import cogs.example.mandelbrot as mandelbrot
+import cogs.example.mandelbrot as mandelbrot # ignore
 
 # Hack to make discord.py-stubs work properly, because for some reason it believes that Cog is generic, while in runtime it is not
 if TYPE_CHECKING:
@@ -42,7 +42,7 @@ class Example(Cog):
         await ctx.send(f"Uptime: {time} seconds")
     
     @commands.command()
-    async def mandelbrot(self, ctx: commands.Context, resolution: int = 500):
+    async def mandelbrot(self, ctx: commands.Context, resolution: int = 500) -> None:
         if resolution < 1:
             await ctx.send("Invalid resolution")
         elif resolution > 1000: #TODO: Implement config read

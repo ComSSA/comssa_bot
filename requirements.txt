@@ -1,3 +1,6 @@
 discord.py
 cython
 setuptools
+
+mypy
+discord.py-stubs
