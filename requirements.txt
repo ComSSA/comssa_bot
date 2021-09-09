@@ -1,6 +1,7 @@
 discord.py
 cython
 setuptools
+sqlalchemy[asyncio]
 
 mypy
 discord.py-stubs

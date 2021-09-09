@@ -2,6 +2,7 @@ import sys, os, argparse
 import discord
 from discord.ext import commands
 from cogs.example import example
+from typing import Optional
 
 bot = commands.Bot(
     command_prefix=".",
@@ -24,9 +25,14 @@ def main() -> None:
         help="The Discord Bot Token to connect to. If not given, will attempt to read from $DISCORD_TOKEN",
         required=False
     )
+    parser.add_argument(
+        "--sql-server",
+        help="The path to be used for the SQL server. See README for the format to be used"
+    )
 
     args = parser.parse_args()
 
+    token: Optional[str]
     if args.token:
         token = args.token
     else:
@@ -34,6 +40,15 @@ def main() -> None:
     if token is None:
         print("Error: No discord bot token specified.", file=sys.stderr)
         sys.exit(1)
+    
+    sqlPath: Optional[str]
+    if args.sql_server:
+        sqlPath = args.sql_server
+    else:
+        sqlPath = os.environ.get("SQL_SERVER")
+    if sqlPath is None:
+        # Default value
+        sqlPath = "sqlite+pysqlite://sql.db"
     
     start_bot(token)
 
