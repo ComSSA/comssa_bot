@@ -1,2 +1,5 @@
 **/__pycache__/
 key.txt
+src/build/
+*.so
+src/cogs/**/*.c
